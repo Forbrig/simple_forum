@@ -2,13 +2,17 @@
 <html lang = "pt-br">
   <head>
     <meta charset = "utf-8">
+    <!-- css -->
     <link rel = "stylesheet" href = "style/style.css">
     <title>simple_site</title>
 
+    <!-- php functions -->
     <?php
       require_once('funcoes.php');
       $conn = bd_connection();
     ?>
+
+    <script src = "js/jquery.js"></script>
 
   </head>
   <body>
@@ -19,22 +23,53 @@
       <input type = "text" name = "val_email" value = "" required><br><br>
       Celular:<br>
       <input type = "text" name = "val_celular" value = "" required><br><br>
-      Estado:<br>
+
       <!-- restrieve states from bd and show as a dropdown section -->
-      <select name = 'val_estado'>
+      Estado:<br>
       <?php
-        $query = "SELECT sigla FROM estados ORDER BY descricao";
-        $result = mysqli_query($conn, $query);
-        while ($rows = mysqli_fetch_array($result)) {
-          echo "<option value = '$rows[sigla]'";
-          echo ">$rows[sigla]";
-        }
+        echo "<select name = 'val_estado' id = 'id_val_estado' onChange = 'getIdState(this)'>";
+          $query = "SELECT uf FROM estado ORDER BY uf";
+          $result = mysqli_query($conn, $query);
+          echo "<option disabled selected value> --Selecione um Estado-- </option>";
+          while ($rows = mysqli_fetch_array($result)) {
+            echo "<option value = '$rows[uf]'>$rows[uf]</option>";
+          }
+        echo "</select><br><br>";
       ?>
-      </select><br><br>
-      Cidade:<br>
-      <input type = "text" name = "val_cidade" value = "" required><br><br>
+
+      <script type = 'text/javascript'>
+        function getIdState(control) {
+          var uf = control.value;
+          query = "SELECT nome FROM cidade ORDER BY nome WHERE estado = ";
+          query += uf;
+          document.getElementById("message").innerHTML = query;
+        }
+      </script>
+
+      <div id = 'message'>
+        
+      </div>
+
+      <?php
+        // retrieve cities from uf selected before as a dropdown menu
+        echo "Cidade:<br>";
+        echo "<select name = 'val_cidade'>";
+          $query = $_POST["query"];
+          echo $query;
+          $query = "SELECT nome FROM cidade ORDER BY nome";
+          $result = mysqli_query($conn, $query);
+          while ($rows = mysqli_fetch_array($result)) {
+            echo "<option value = '$rows[nome]'";
+            echo ">$rows[nome]";
+          }
+        echo "</select><br><br>";
+      ?>
+
       <input type = "submit" name = "val_cadastro" value = "Cadastrar">
     </form>
+
+
+
 
     <?php
       if (isset($_POST['val_cadastro'])) {
@@ -48,6 +83,7 @@
       }
     ?>
 
+    <!-- print clients -->
     <table border = "1" style = "width: 100%">
       <tr>
         <th>Nome Completo</th>
